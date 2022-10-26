@@ -1,0 +1,48 @@
+.container{
+    /* background-color: rgb(184, 137, 36); */
+    /* width: 700px; */
+    height: 600px;
+    display: grid;
+    grid-template-rows: 250px 250px;
+    grid-template-columns: 250px 250px;
+    justify-content: center;
+    /* margin-top: 40px; */
+    row-gap: 5px;
+    column-gap: 5px;
+}
+
+.item{
+    /* background-color: aqua; */
+    width: 200px;
+    height: 200px;
+    margin-top: 25%;
+    border-radius: 10%;
+    cursor: pointer;
+}
+{% load static %}
+body{
+    /* background-color: rgb(40, 51, 47); */
+    background-image: url('{% static 'images/weatherr.jpg' %}');
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+}
+h1{
+    text-align: center;
+    color:white;
+    font-weight: bolder;
+    font-size: 350%;
+   /* margin-top: 15%; */
+
+}
+form{
+    margin-top: 10px;
+    margin-left: 90%;
+}
+h5{
+    justify-content: center;
+    margin-top: 50%;
+}
+.first{
+    justify-content: center;
+    margin-top: 35%;
+}

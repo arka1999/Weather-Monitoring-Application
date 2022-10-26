@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'font-awesome.css' %}" />
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <script src="{% static 'bootstrap.min.js' %}"></script>
+  <title>Weather Monitoring</title>
+  <style>
+body{
+            background-image: url('{% static 'images/graph1.jpg' %}');
+            background-repeat: no-repeat;
+            /* background-size: 100% 100%; */
+}
+#col{
+  color: white;
+}
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <section class="col-md-12">
+        <h2 class="page-header" style="text-align: center" id="col">
+          <b>Real-Time-Graph</b>
+        </h2>
+        <div class="row">
+          <div class="form-group">
+            <div class="row" style="margin-top: 15px">
+              <div class="col-md-3">
+                <label for="" class="" id="col">ENTER Thingspeak JSON URL:</label>
+              </div>
+              <div class="col-md-7">
+                <input type="text" class="form-control" id="thingspeak_url" value="https://api.thingspeak.com/channels/1758870/feeds.json?api_key=5X7V8TFH88X86K86&results=2" />
+              </div>
+              <div class="col-md-2">
+                <button id="open_url" class="btn btn-primary" value="Open URL" >Open URL</button>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <label for="" class="" id="col">Time Interval
+                <small>(in seconds)</small>
+                :</label>
+            </div>
+            <div class="col-md-4">
+              <input type="text" class="form-control" name="" value="" id="id_interval"
+                data-url="{% url 'Student:fetch_datafrom_thingspeak' %}" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="text-center" style="margin-top: 10px">
+              <button id="btn_show" class="btn btn-primary">SHOW</button>
+            </div>
+          </div>
+          <div class="col-md-12" style="margin: top 15px">
+            <div class="col-md-12" style="margin-top: 15px">
+                <div id="temp_graph_div"></div>
+              </div>
+          </div>
+        </div>
+    </div>
+    </section>
+  </div>
+  </div>
+</body>
+
+<script src="{% static  'jquery-3.3.1.min.js' %}"></script>
+<script>
+  $(document).ready(function () {
+    $("#open_url").click(function () {
+      uu = $("#thingspeak_url").val();
+      window.open(uu);
+    });
+
+    //let interval_time = 0;
+
+    $("#btn_show").click(function () {
+      let interval_time = $("#id_interval").val() * 1000;
+      let ajax_calling_url = $("#id_interval").data("url");
+      let jsonurl = $("#thingspeak_url").val();
+      
+      $("#sensor_content_body").empty(); //empty the table on each click
+      fill_graph(jsonurl, ajax_calling_url, interval_time)
+//time in milliseconds
+    });
+    function fill_graph(jsonurl, ajax_calling_url, interval_time) {
+            function rand() {
+              return Math.random();
+            }
+
+            var TEMP = {
+              x: [],
+              y: [],
+              mode: "scatter",
+              line: {
+                color: "red",
+                shape: "spline",
+              },
+              name: "Temp",
+            };
+
+            var datax = [TEMP];
+
+            Plotly.newPlot("temp_graph_div", datax);
+
+            var cnt = 0;
+
+            var interval = setInterval(function () {
+              var time = new Date();
+              $.ajax({
+                type: "get",
+                url: ajax_calling_url,
+                data: {
+                  id: jsonurl,
+                },
+                success: function (data1) {
+                  console.log(data1);
+                  if (data1.hasOwnProperty("result")) {
+                    let time = data1.result.date;
+                    let wbt = data1.result.temp;
+                    let update = {
+                      x: [[time]],
+                      y: [[wbt]],
+                    };
+                    Plotly.extendTraces("temp_graph_div", update, [0]);
+                    if (++cnt === 100) clearInterval(interval);
+                  }
+                  return data1;
+                },
+                error: function () {
+                  console.log("ERROR OCCURED");
+                },
+              });
+            }, interval_time);
+          } ; 
+  });
+</script>
+
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'font-awesome.css' %}" />
+  <script src="{% static 'bootstrap.min.js' %}"></script>
+<title>Weather Monitoring</title>
+
+</head>
+
+<body>
+  <div class="container">
+    <div class="row">
+      <section class="col-md-12">
+        <h2 class="page-header" style="text-align: center; color: white;">
+          <b>Real-Time-data</b>
+        </h2>
+        <div class="row">
+          <div class="form-group">
+            <div class="row" style="margin-top: 15px">
+              <div class="col-md-3">
+                <label for="" class="" id="" >ENTER Thingspeak JSON URL:</label>
+              </div>
+              <div class="col-md-7">
+                <input type="text" class="form-control" id="thingspeak_url" value="https://api.thingspeak.com/channels/1758870/feeds.json?api_key=5X7V8TFH88X86K86&results=2" />
+              </div>
+              <div class="col-md-2">
+                <input id="open_url" class="btn btn-primary" value="Open URL" />
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <label for="" class="" id="" >Time Interval
+                <small>(in seconds)</small>
+                :</label>
+            </div>
+            <div class="col-md-4">
+              <input type="text" class="form-control" name="" value="" id="id_interval"
+                data-url="{% url 'Student:fetch_datafrom_thingspeak' %}" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="text-center" style="margin-top: 10px">
+              <button id="btn_show" class="btn btn-primary">SHOW</button>
+            </div>
+          </div>
+          <div class="col-md-12" style="margin: top 15px">
+            <div class="table-responsive">
+              <table class="table table-bordered" id="sensor_content">
+                <thead>
+                  <tr>
+                    <th>Date Time</th>
+                    <th>Tempareture (degree)</th>
+                    <th>Humidity (unit)</th>
+                    <th>Delay</th>
+                  </tr>
+                </thead>
+                <tbody id="sensor_content_body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+    </div>
+    </section>
+  </div>
+  </div>
+</body>
+
+<script src="{% static  'jquery-3.3.1.min.js' %}"></script>
+<script>
+  $(document).ready(function () {
+    $("#open_url").click(function () {
+      uu = $("#thingspeak_url").val();
+      window.open(uu);
+    });
+
+    let interval_time = 0;
+
+    $("#btn_show").click(function () {
+      interval_time = $("#id_interval").val() * 1000;
+      let ajax_calling_url = $("#id_interval").data("url");
+      let jsonurl = $("#thingspeak_url").val();
+      $("#sensor_content_body").empty(); //empty the table on each click
+
+      setInterval(function () {
+        $.ajax({
+          type: "get",
+          url: ajax_calling_url,
+          data: {
+            id: jsonurl,
+          },
+          success: function (data1) {
+
+                  function addZero(i) {
+                    if (i < 10) {i = "0" + i}
+                    return i;
+                  }
+                var date = new Date();
+                var hours = addZero(date.getHours());
+                var minutes = addZero(date.getMinutes());
+                var seconds=addZero(date.getSeconds());
+
+                var month = date.getMonth();
+                var day = addZero(date.getDate());
+                var year = date.getFullYear();
+
+                var monthNames=[01,02,03,04,05,06,07,08,09,10,11,12];
+
+                var p = hours+":"+minutes+":"+seconds;
+                var q = year+"-"+addZero(monthNames[month])+"-"+day;
+
+            $("#sensor_content_body").append(
+              "<tr><td>" +
+              data1.result.date +
+              "</td><td>" +
+              data1.result.temp +
+              "</td><td>" +
+              data1.result.humidity +
+              "</td><td>" +
+                 q+ " "+p +
+                "</td></tr>"
+
+            );
+            return data1;
+          },
+          error: function () {
+            console.log("Something Went Wrong!");
+          },
+        });
+      }, interval_time); //time in milliseconds
+    });
+  });
+</script>
+
+</html>
